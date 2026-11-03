@@ -12,8 +12,12 @@ SillyTavern 前端扩展：内置一个「导演」agent，把一个回合推演
 
 ## 安装
 
-1. 把本仓库放进 `SillyTavern/public/scripts/extensions/third-party/st-anko-director`
-   （或做一个指向本目录的链接）
+```bash
+# 进到酒馆的第三方扩展目录
+cd SillyTavern/public/scripts/extensions/third-party
+git clone https://github.com/<你的用户名>/st-anko-director.git
+```
+（或者直接把仓库目录放进 `third-party/st-anko-director`；目录名要保持一致，`index.js` 里的 `EXTENSION_PATH` 依赖它）
 2. 重启 / 刷新酒馆，到「扩展」里启用 **安科导游**
 3. 面板里先点「读取当前预设」核对预设，再「推演本回合」
 
