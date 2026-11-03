@@ -1,0 +1,13 @@
+{
+  "display_name": "安科导游",
+  "loading_order": 100,
+  "js": "index.js",
+  "css": "style.css",
+  "author": "st-anko-director（本地开发版）",
+  "version": "1.0.0",
+  "auto_update": false,
+  "minimum_client_version": "1.12.6",
+  "i18n": {
+    "zh-tw": "i18n/zh-tw.json"
+  }
+}

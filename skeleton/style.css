@@ -1,0 +1,24 @@
+/* ==========================================================================
+   扩展骨架 — 样式表
+   ==========================================================================
+   两条硬规则（都是为了不破坏酒馆原生界面）：
+   1. 所有选择器都必须挂在扩展自己的根类名下面（这里是 .st-ext-skeleton-settings），
+      绝不写 body / .mes / #chat 这种全局选择器。
+   2. 不覆盖 ST 原生类（.menu_button / .text_pole / .inline-drawer 等）的公共属性，
+      只在自己的根类里做局部微调。
+   ========================================================================== */
+
+.st-ext-skeleton-settings .st-ext-skeleton-footer {
+    font-size: 0.85em;
+    opacity: 0.7;
+    margin-top: 5px;
+}
+
+.st-ext-skeleton-settings textarea.text_pole {
+    margin-bottom: 8px;
+}
+
+.st-ext-skeleton-settings #st_ext_skeleton_stats {
+    min-width: 2em;
+    text-align: center;
+}

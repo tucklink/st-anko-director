@@ -1,0 +1,67 @@
+<!--
+  设置面板模板（Handlebars）。
+  - 由 index.js 里的 renderExtensionTemplateAsync(EXTENSION_PATH, 'settings', data) 渲染，
+    第二个参数不带 .html。
+  - 渲染结果会被 DOMPurify 清洗，并自动套用 data-i18n 翻译。
+  - data-i18n 的键约定为「英文原文」，元素内容也写同样的英文：
+    英文没语言文件所以原样显示，中文环境由 i18n/zh-cn.json 覆盖。
+-->
+<div id="st_ext_skeleton_panel" class="st-ext-skeleton-settings">
+    <div class="inline-drawer">
+        <div class="inline-drawer-toggle inline-drawer-header">
+            <b data-i18n="{{title}}">{{title}}</b>
+            <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
+        </div>
+        <div class="inline-drawer-content">
+            <div id="st_ext_skeleton_body">
+                <label class="checkbox_label" for="st_ext_skeleton_enabled">
+                    <input id="st_ext_skeleton_enabled" type="checkbox" />
+                    <span data-i18n="Enable extension">Enable extension</span>
+                </label>
+
+                <hr class="sysHR" />
+
+                <label class="checkbox_label" for="st_ext_skeleton_injection_enabled">
+                    <input id="st_ext_skeleton_injection_enabled" type="checkbox" />
+                    <span data-i18n="Inject text into the prompt">Inject text into the prompt</span>
+                </label>
+
+                <label for="st_ext_skeleton_injection_text">
+                    <span data-i18n="Injected text">Injected text</span>
+                </label>
+                <textarea id="st_ext_skeleton_injection_text" class="text_pole textarea_compact" rows="3"
+                    data-i18n="[placeholder]Text injected before generation"
+                    placeholder="Text injected before generation"></textarea>
+
+                <label for="st_ext_skeleton_injection_depth">
+                    <span data-i18n="Injection depth">Injection depth</span>
+                </label>
+                <input id="st_ext_skeleton_injection_depth" class="text_pole" type="number" min="0" max="100" step="1"
+                    value="{{injectionDepth}}" />
+
+                <hr class="sysHR" />
+
+                <label class="checkbox_label" for="st_ext_skeleton_count_received">
+                    <input id="st_ext_skeleton_count_received" type="checkbox" />
+                    <span data-i18n="Count received messages">Count received messages</span>
+                </label>
+
+                <div class="flex-container alignitemscenter gap10px">
+                    <span data-i18n="Counted in this chat">Counted in this chat</span>
+                    <b id="st_ext_skeleton_stats">0</b>
+                    <div id="st_ext_skeleton_reset_stats" class="menu_button menu_button_icon"
+                        data-i18n="[title]Reset the counter for this chat"
+                        title="Reset the counter for this chat">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="sysHR" />
+
+            <div class="st-ext-skeleton-footer">
+                <span data-i18n="Version">Version</span>: <span>{{version}}</span>
+            </div>
+        </div>
+    </div>
+</div>

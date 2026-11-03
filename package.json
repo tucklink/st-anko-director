@@ -1,0 +1,47 @@
+{
+  "name": "st-anko-director",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "SillyTavern 安科导游扩展：内联骰子 + 导演 agent（酒馆前端扩展，无需构建）",
+  "license": "AGPL-3.0-only",
+  "main": "main.cjs",
+  "scripts": {
+    "test": "node --test tests/",
+    "test:direct": "node tests/dice.test.mjs && node tests/rules.test.mjs && node tests/inline.test.mjs && node tests/option-table.test.mjs && node tests/director.test.mjs && node tests/combat.test.mjs && node tests/api.test.mjs && node tests/subsystems.test.mjs && node tests/tool-roll-dice.test.mjs && node tests/preset.test.mjs && node tests/tokens.test.mjs && node tests/integration.test.mjs",
+    "verify": "node tools/verify-outline.mjs",
+    "ask": "node tools/ask.mjs",
+    "app:start": "electron .",
+    "app:dist": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "^32.3.3",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.anko.director",
+    "productName": "安科导游",
+    "directories": {
+      "output": "dist-app"
+    },
+    "npmRebuild": false,
+    "buildDependenciesFromSource": false,
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "renderer/**/*",
+      "src/**/*"
+    ],
+    "win": {
+      "target": [
+        "portable"
+      ]
+    },
+    "portable": {
+      "artifactName": "安科导游-${version}.exe"
+    }
+  },
+  "dependencies": {
+    "postject": "^1.0.0-alpha.6"
+  }
+}

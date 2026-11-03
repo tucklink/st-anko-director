@@ -1,0 +1,12 @@
+{
+    "Extension Skeleton": "擴充骨架",
+    "Enable extension": "啟用擴充",
+    "Inject text into the prompt": "將文字注入提示詞",
+    "Injected text": "注入內容",
+    "Text injected before generation": "每次生成前注入的文字",
+    "Injection depth": "注入深度",
+    "Count received messages": "統計收到的訊息",
+    "Counted in this chat": "本聊天已統計",
+    "Reset the counter for this chat": "清零本聊天的計數",
+    "Version": "版本"
+}

@@ -1,0 +1,283 @@
+<!--
+  安科导游 —— 设置面板（Handlebars 模板）
+
+  由 index.js 用 renderExtensionTemplateAsync(EXTENSION_PATH, 'settings', data) 渲染。
+  第二个参数不带 .html。渲染结果已经被 DOMPurify 清洗并自动套用 data-i18n。
+
+  data-i18n 的键 = 中文原文（本扩展的源语言是中文，英文是酒馆的回退语言）。
+  i18n/zh-tw.json 提供繁体。
+-->
+<div id="anko_panel" class="anko-director">
+    <div class="inline-drawer">
+        <div class="inline-drawer-toggle inline-drawer-header">
+            <b data-i18n="安科导游">安科导游</b>
+            <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
+        </div>
+        <div class="inline-drawer-content">
+
+            <div class="anko-section-title">推演</div>
+            <div class="flex-container gap5px">
+                <div id="anko_run" class="menu_button" data-i18n="[title]让导演 agent 推演本回合，产出大纲写进输入框"
+                    title="让导演 agent 推演本回合，产出大纲写进输入框（开了「大纲直接发送」时会直接发出去，不给你改）">
+                    <span data-i18n="推演本回合">推演本回合</span>
+                </div>
+                <div id="anko_stop" class="menu_button" data-i18n="[title]中止当前推演，已经写好的部分会保留"
+                    title="中止当前推演，已经写好的部分会保留">
+                    <span data-i18n="停止">停止</span>
+                </div>
+                <div id="anko_bid_draw" class="menu_button" data-i18n="[title]从安价池里均等抽一个选项"
+                    title="从安价池里均等抽一个选项">
+                    <span data-i18n="安价一轮">安价一轮</span>
+                </div>
+                <div id="anko_sheet" class="menu_button" data-i18n="[title]给默认八项属性各投一次 1d100"
+                    title="给默认八项属性各投一次 1d100">
+                    <span data-i18n="车卡">车卡</span>
+                </div>
+                <div id="anko_float_toggle" class="menu_button"
+                    data-i18n="[title]把面板搬成屏幕上的常驻浮窗（可拖动），边聊边看骰点日志"
+                    title="把面板搬成屏幕上的常驻浮窗（可拖动），边聊边看骰点日志">
+                    <span data-i18n="常驻浮窗">常驻浮窗</span>
+                </div>
+            </div>
+
+            <hr class="sysHR" />
+
+            <label class="checkbox_label" for="anko_auto">
+                <input id="anko_auto" type="checkbox" />
+                <span data-i18n="发送前自动推演">发送前自动推演</span>
+            </label>
+            <label class="checkbox_label" for="anko_direct_send">
+                <input id="anko_direct_send" type="checkbox" />
+                <span data-i18n="大纲直接发送（不给我改）">大纲直接发送（不给我改）</span>
+            </label>
+            <label class="checkbox_label" for="anko_strict">
+                <input id="anko_strict" type="checkbox" />
+                <span data-i18n="严格因果模式（强制一轮一骰）">严格因果模式（强制一轮一骰）</span>
+            </label>
+            <label class="checkbox_label" for="anko_raw">
+                <input id="anko_raw" type="checkbox" />
+                <span data-i18n="显示每颗骰子的原始点数（命令输出；骰点日志始终记录原始值）">显示每颗骰子的原始点数（命令输出；骰点日志始终记录原始值）</span>
+            </label>
+            <label class="checkbox_label" for="anko_prefill"
+                data-i18n="[title]用 prefill 续写。prefill 会变成一条 assistant 消息，而 Gemini 这类 API 拒绝「请求以模型回合结尾」，开了会报 400"
+                title="用 prefill 续写。prefill 会变成一条 assistant 消息，而 Gemini 这类 API 拒绝「请求以模型回合结尾」，开了会报 400">
+                <input id="anko_prefill" type="checkbox" />
+                <span data-i18n="用 prefill 续写（Gemini 等会报 400，默认关）">用 prefill 续写（Gemini 等会报 400，默认关）</span>
+            </label>
+
+            <label class="checkbox_label" for="anko_world_info"
+                data-i18n="[title]把当前激活的世界书整份塞进导演的上下文简报。代价：一回合最多 12 轮，每轮都会重复带一遍，世界书越大越贵"
+                title="把当前激活的世界书整份塞进导演的上下文简报。代价：一回合最多 12 轮，每轮都会重复带一遍，世界书越大越贵">
+                <input id="anko_world_info" type="checkbox" />
+                <span data-i18n="导演能看到世界书（整份塞，每轮都带）">导演能看到世界书（整份塞，每轮都带）</span>
+            </label>
+
+                                    
+            
+
+            <div class="anko-section-title">导演用哪个预设（只影响导演）</div>
+            <label for="anko_preset_select" title="选一份预设，只给导演用（注入它的提示词条目）。不切换、不修改你酒馆的预设。">
+                <span data-i18n="导演用哪个预设（只影响导演）">导演用哪个预设（只影响导演）</span>
+            </label>
+            <select id="anko_preset_select" class="text_pole" title="选一份预设，**只给导演用**：把它的提示词条目拼进导演的请求里。不改你酒馆的当前预设，也不动正文。"></select>
+            <div class="flex-container gap5px">
+                <div id="anko_preset_import" class="menu_button" title="选一个预设 .json，存成酒馆预设并应用">导入预设</div>
+                <div id="anko_preset_export" class="menu_button" title="把当前预设导出成 .json 文件">导出当前预设</div>
+            </div>
+            <input id="anko_preset_file" type="file" accept=".json,application/json" style="display:none" />
+            <div id="anko_preset_msg" class="anko-line"></div>
+
+            <div class="anko-section-title">导演的 API</div>
+            <label for="anko_api_source"
+                data-i18n="[title]导演单独用什么来源（走酒馆服务端代理，同源、不撞 CORS，密钥用酒馆那份）。两个选项要分清：『跟随当前设置』= 完全用正文的模型与预设（generateRaw）；『同源换模型』= 用正文当前的来源 + 下面填的模型"
+                title="导演单独用什么来源（走酒馆服务端代理，同源、不撞 CORS，密钥用酒馆那份）。两个选项要分清：『跟随当前设置』= 完全用正文的模型与预设（generateRaw）；『同源换模型』= 用正文当前的来源 + 下面填的模型">
+                <span data-i18n="导演的 API 来源">导演的 API 来源</span>
+            </label>
+            <select id="anko_api_source" class="text_pole">
+                <option value="" data-i18n="跟随当前设置（用正文的模型与预设）">跟随当前设置（用正文的模型与预设）</option>
+                <option value="__same__" data-i18n="同源换模型（用正文的来源 + 下面填的模型）">同源换模型（用正文的来源 + 下面填的模型）</option>
+            </select>
+            <label for="anko_api_model2"
+                data-i18n="[title]导演用哪个模型。只在『同源换模型』或选了具体来源时生效 —— 正文那边完全不受影响；『跟随当前设置』时这个框会被忽略"
+                title="导演用哪个模型。只在『同源换模型』或选了具体来源时生效 —— 正文那边完全不受影响；『跟随当前设置』时这个框会被忽略">
+                <span data-i18n="导演用哪个模型（选了来源才生效）">导演用哪个模型（选了来源才生效）</span>
+            </label>
+            <input id="anko_api_model2" class="text_pole" type="text" placeholder="例：gemini-2.5-flash / deepseek-chat" />
+            <div class="flex-container gap5px">
+                <div id="anko_api_source_test" class="menu_button"
+                    data-i18n="[title]拿一句最短的话，用这个来源经酒馆服务端打一次（同源，不会撞 CORS）—— 通不通立刻知道"
+                    title="拿一句最短的话，用这个来源经酒馆服务端打一次（同源，不会撞 CORS）—— 通不通立刻知道">
+                    <span data-i18n="测试这个来源">测试这个来源</span>
+                </div>
+            </div>
+            <div id="anko_api_source_result" class="anko-line"></div>
+
+
+
+            <label class="checkbox_label" for="anko_dice_tool"
+                data-i18n="[title]实验功能：让导演通过**函数工具**（function calling）投骰，而不是在正文里写「→ 1d10【选项】」。需要当前来源支持工具调用。实测部分模型会返回 MALFORMED_FUNCTION_CALL（模型生成的调用无法解析），表现为这一轮完全没有产出 —— 遇到就把它关掉。默认关闭。"
+                title="实验功能：让导演通过函数工具（function calling）投骰，而不是在正文里写「→ 1d10【选项】」。需要当前来源支持工具调用。实测部分模型会返回 MALFORMED_FUNCTION_CALL（模型生成的调用无法解析），表现为这一轮完全没有产出 —— 遇到就把它关掉。默认关闭。">
+                <input id="anko_dice_tool" type="checkbox" />
+                <span data-i18n="实验：导演用函数工具投骰（默认关；出问题就关掉它）">实验：导演用函数工具投骰（默认关；出问题就关掉它）</span>
+            </label>
+            <div class="anko-line anko-warn" data-i18n="⚠️ 这个开关是实验性的：实测某些模型（如 Gemini 系）调用工具时会返回 MALFORMED_FUNCTION_CALL，整轮没有产出。默认关闭；开着遇到问题就关掉，走文本协议那条老路。">
+                ⚠️ 这个开关是实验性的：实测某些模型（如 Gemini 系）调用工具时会返回 MALFORMED_FUNCTION_CALL，整轮没有产出。默认关闭；开着遇到问题就关掉，走文本协议那条老路。
+            </div>
+
+            <details class="anko-api">
+                <summary>
+                    <b data-i18n="导演的 API（内置，不走酒馆）">导演的 API（内置，不走酒馆）</b>
+                    <span id="anko_api_state"></span>
+                </summary>
+
+                <label class="checkbox_label" for="anko_api_on"
+                    data-i18n="[title]开了之后导演的请求由插件自己发（直连），不用酒馆的设置与预设。注意浏览器直连要过 CORS，不是所有接口都允许"
+                    title="开了之后导演的请求由插件自己发（直连），不用酒馆的设置与预设。注意浏览器直连要过 CORS，不是所有接口都允许">
+                    <input id="anko_api_on" type="checkbox" />
+                    <span data-i18n="用内置 API（直连，不走酒馆）">用内置 API（直连，不走酒馆）</span>
+                </label>
+
+                <label for="anko_api_kind"><span data-i18n="接口形态">接口形态</span></label>
+                <select id="anko_api_kind" class="text_pole">
+                    <option value="openai" data-i18n="OpenAI 兼容（/chat/completions）">OpenAI 兼容（/chat/completions）</option>
+                    <option value="gemini" data-i18n="Google Gemini（generateContent）">Google Gemini（generateContent）</option>
+                </select>
+
+                <label for="anko_api_base"><span data-i18n="接口地址（留空 = 官方默认）">接口地址（留空 = 官方默认）</span></label>
+                <input id="anko_api_base" class="text_pole" type="text" placeholder="https://api.example.com/v1" />
+
+                <label for="anko_api_key"
+                    data-i18n="[title]明文存在酒馆的设置文件里（酒馆自己的 key 也是这样存的）。别把不属于你的 key 填进来"
+                    title="明文存在酒馆的设置文件里（酒馆自己的 key 也是这样存的）。别把不属于你的 key 填进来">
+                    <span data-i18n="API Key（明文存在设置里）">API Key（明文存在设置里）</span>
+                </label>
+                <input id="anko_api_key" class="text_pole" type="password" autocomplete="off" />
+
+                <label for="anko_api_model"><span data-i18n="模型名">模型名</span></label>
+                <input id="anko_api_model" class="text_pole" type="text" placeholder="gpt-4o-mini / gemini-2.5-flash" />
+
+                <label for="anko_api_temp"><span data-i18n="温度（留空 = 不传）">温度（留空 = 不传）</span></label>
+                <input id="anko_api_temp" class="text_pole" type="number" min="0" max="2" step="0.1" />
+
+                <label for="anko_api_maxtok"><span data-i18n="最大 token（0 = 不传）">最大 token（0 = 不传）</span></label>
+                <input id="anko_api_maxtok" class="text_pole" type="number" min="0" step="128" />
+
+                <div class="flex-container gap5px">
+                    <div id="anko_api_test" class="menu_button"
+                        data-i18n="[title]拿一句最短的话打一次接口，看通不通。失败会直接告诉你原因（含 CORS）"
+                        title="拿一句最短的话打一次接口，看通不通。失败会直接告诉你原因（含 CORS）">
+                        <span data-i18n="测试连接">测试连接</span>
+                    </div>
+                </div>
+                <div id="anko_api_result" class="anko-line"></div>
+            </details>
+
+            <div class="anko-section-title">显示与格式</div>
+            <label for="anko_person">
+                <span data-i18n="叙述人称">叙述人称</span>
+            </label>
+            <select id="anko_person" class="text_pole"
+                data-i18n="[title]给导演的写人称规则。不定这条规则时，模型会照抄范例里的人称，于是大纲的人称会随轮次飘"
+                title="给导演的写人称规则。不定这条规则时，模型会照抄范例里的人称，于是大纲的人称会随轮次飘">
+                <option value="auto" data-i18n="沿用前情（推荐）">沿用前情（推荐）</option>
+                <option value="first" data-i18n="第一人称：我">第一人称：我</option>
+                <option value="second" data-i18n="第二人称：你">第二人称：你</option>
+                <option value="third" data-i18n="第三人称：名字">第三人称：名字</option>
+            </select>
+
+            <label for="anko_rounds">
+                <span data-i18n="轮数上限">轮数上限</span>
+            </label>
+            <input id="anko_rounds" class="text_pole" type="number" min="1" max="50" step="1"
+                value="{{maxRounds}}" />
+
+            <label class="checkbox_label" for="anko_format_lock"
+                data-i18n="[title]在正文 AI 的生成点前注入一条硬约束：选项表逐行保留、♛ 不许动、骰子回执原样保留。只有真的出现骰子内容时才注入，平时不占 token"
+                title="在正文 AI 的生成点前注入一条硬约束：选项表逐行保留、♛ 不许动、骰子回执原样保留。只有真的出现骰子内容时才注入，平时不占 token">
+                <input id="anko_format_lock" type="checkbox" />
+                <span data-i18n="锁死骰子格式（推荐，比世界书管用）">锁死骰子格式（推荐，比世界书管用）</span>
+            </label>
+
+            <label class="checkbox_label" for="anko_resolve_ai"
+                data-i18n="[title]默认关：设计上骰子归导演（大纲里已经投好了），演员只负责叙述。打开后插件会结算正文 AI 自己写的骰子（含选项表命中标）"
+                title="默认关：设计上骰子归导演（大纲里已经投好了），演员只负责叙述。打开后插件会结算正文 AI 自己写的骰子（含选项表命中标）">
+                <input id="anko_resolve_ai" type="checkbox" />
+                <span data-i18n="结算正文 AI 写的骰子（默认关）">结算正文 AI 写的骰子（默认关）</span>
+            </label>
+
+            <label for="anko_mark">
+                <span data-i18n="选项骰命中行的标记符号">选项骰命中行的标记符号</span>
+            </label>
+            <input id="anko_mark" class="text_pole" type="text" maxlength="8" value="{{hitMark}}"
+                data-i18n="[title]插件投完选项骰后，会在投中的那一行末尾打上这个符号。留空则不打标"
+                title="插件投完选项骰后，会在投中的那一行末尾打上这个符号。留空则不打标" />
+
+            <label for="anko_inject">
+                <span data-i18n="注入主提示词的状态文本（留空则不注入）">注入主提示词的状态文本（留空则不注入）</span>
+            </label>
+            <input id="anko_inject" class="text_pole" type="text" value="{{injectTemplate}}"
+                placeholder="例：当前属性 {{attrs}}；{{combat}}" />
+
+            <hr class="sysHR" />
+
+            <div class="anko-section-title">续推 / 撤回</div>
+            <div class="flex-container gap5px">
+                <div id="anko_continue" class="menu_button"
+                    data-i18n="[title]不写玩家输入，直接接着前情往下推一幕"
+                    title="不写玩家输入，直接接着前情往下推一幕">
+                    <span data-i18n="续推一幕">续推一幕</span>
+                </div>
+                <div id="anko_prev" class="menu_button"
+                    data-i18n="[title]撤回上一幕：退回一版大纲（前情里存着最近 3 版）"
+                    title="撤回上一幕：退回一版大纲（前情里存着最近 3 版）">
+                    <span data-i18n="撤回上一幕">撤回上一幕</span>
+                </div>
+            </div>
+
+            <div class="anko-line"><b data-i18n="状态">状态</b>：<span id="anko_status">—</span></div>
+            <div class="anko-line"><b data-i18n="进度">进度</b>：<span id="anko_progress">—</span></div>
+            <div class="anko-line"><b data-i18n="属性">属性</b>：<span id="anko_attrs">—</span></div>
+            <div class="anko-line"><b data-i18n="战斗">战斗</b>：<span id="anko_combat">—</span></div>
+            <div class="anko-line anko-warn-line" id="anko_warn"></div>
+
+            <hr class="sysHR" />
+
+            <details class="anko-log-wrap">
+                <summary>
+                    <b data-i18n="骰点日志">骰点日志</b>
+                    <span id="anko_log_count"></span>
+                </summary>
+                <div id="anko_log" class="anko-log"></div>
+                <div class="flex-container gap5px">
+                    <div id="anko_log_refresh" class="menu_button" data-i18n="刷新日志">刷新日志</div>
+                    <div id="anko_log_clear" class="menu_button" data-i18n="清空日志">清空日志</div>
+                </div>
+            </details>
+
+            <hr class="sysHR" />
+
+            <div class="anko-section-title">数据导出 / 导入</div>
+            <label for="anko_io_scope">
+                <span data-i18n="导出范围（导入会自动识别文件内容）">导出范围（导入会自动识别文件内容）</span>
+            </label>
+            <select id="anko_io_scope" class="text_pole">
+                <option value="all" data-i18n="全部（属性 + 预设）">全部（属性 + 预设）</option>
+                <option value="attrs" data-i18n="只属性">只属性</option>
+                <option value="settings" data-i18n="只预设">只预设</option>
+            </select>
+            <div class="flex-container gap5px">
+                <div id="anko_io_export" class="menu_button"
+                    data-i18n="[title]把当前属性/预设存成一个 .json 文件（换设备或备份用）"
+                    title="把当前属性/预设存成一个 .json 文件（换设备或备份用）">
+                    <span data-i18n="导出 JSON">导出 JSON</span>
+                </div>
+                <div id="anko_io_import" class="menu_button"
+                    data-i18n="[title]选一个之前导出的 .json 导入（属性会覆盖当前聊天，预设会覆盖扩展设置）"
+                    title="选一个之前导出的 .json 导入（属性会覆盖当前聊天，预设会覆盖扩展设置）">
+                    <span data-i18n="导入 JSON">导入 JSON</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

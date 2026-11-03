@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>安科导游</title>
+<style>
+  :root {
+    --bg: #14161a; --panel: #1b1e24; --line: #2c313a; --fg: #e6e6e6; --dim: #9aa3ad;
+    --accent: #c9a227; --bad: #e06c75;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 14px/1.65 "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+    display: grid; grid-template-columns: 1fr 330px; grid-template-rows: auto 1fr auto;
+    grid-template-areas: "head side" "log side" "input side"; height: 100vh;
+  }
+  header { grid-area: head; padding: 10px 16px; border-bottom: 1px solid var(--line); display: flex; gap: 12px; align-items: center; }
+  header b { color: var(--accent); font-weight: 600; }
+  header .spacer { flex: 1; }
+  #status { color: var(--dim); font-size: 12px; }
+  #log { grid-area: log; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .turn { border-left: 2px solid var(--line); padding-left: 12px; }
+  .turn .who { color: var(--dim); font-size: 12px; margin-bottom: 4px; }
+  .turn .body { white-space: pre-wrap; }
+  .turn.director { border-color: var(--accent); }
+  .turn.error { border-color: var(--bad); color: var(--bad); }
+  #composer { grid-area: input; border-top: 1px solid var(--line); padding: 12px 16px; display: flex; gap: 10px; }
+  #userInput {
+    flex: 1; min-height: 76px; resize: vertical; background: var(--panel); color: var(--fg);
+    border: 1px solid var(--line); border-radius: 8px; padding: 10px; font: inherit;
+  }
+  button {
+    background: var(--accent); color: #201a04; border: 0; border-radius: 8px;
+    padding: 0 18px; font: inherit; font-weight: 600; cursor: pointer;
+  }
+  button:disabled { opacity: .45; cursor: default; }
+  button.ghost { background: transparent; color: var(--dim); border: 1px solid var(--line); font-weight: 400; }
+  aside { grid-area: side; border-left: 1px solid var(--line); padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+  aside h3 { margin: 0 0 4px; font-size: 13px; color: var(--accent); font-weight: 600; }
+  label { display: block; font-size: 12px; color: var(--dim); margin: 8px 0 3px; }
+  input[type=text], input[type=password], input[type=number], select {
+    width: 100%; background: var(--panel); color: var(--fg); border: 1px solid var(--line);
+    border-radius: 6px; padding: 7px 9px; font: inherit;
+  }
+  .row { display: flex; gap: 8px; }
+  .row > * { flex: 1; min-width: 0; }
+  #rolls, #warnings { font-size: 12px; color: var(--dim); }
+  #rolls div { padding: 3px 0; border-bottom: 1px dashed var(--line); word-break: break-all; }
+  #rolls b { color: var(--fg); font-weight: 500; }
+  #warnings { color: var(--bad); white-space: pre-wrap; }
+  .hint { color: var(--dim); font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <b>安科导游</b>
+  <span class="hint">本地网页版 · 引擎与插件同源</span>
+  <span class="spacer"></span>
+  <span id="status">就绪</span>
+</header>
+
+<main id="log">
+  <div class="turn"><div class="who">提示</div><div class="body">左边写玩家这一回合做什么，点「推演这一幕」。
+导演会按孔明式投骰（选项表 / 是非骰 / 背景骰），再把骨架交给你。骰点和警告在右侧。</div></div>
+</main>
+
+<div id="composer">
+  <textarea id="userInput" placeholder="例：我推门进去，想从酒保嘴里撬出消息（Ctrl+Enter 推演）"></textarea>
+  <button id="runBtn">推演这一幕</button>
+</div>
+
+<aside>
+  <h3>接口</h3>
+  <label>形态</label>
+  <select id="apiKind"></select>
+  <label>Base URL</label>
+  <input id="baseUrl" type="text" placeholder="https://openrouter.ai/api/v1" />
+  <label>API Key</label>
+  <input id="apiKey" type="password" placeholder="sk-..." />
+  <label>模型</label>
+  <input id="model" type="text" placeholder="例：google/gemini-4-argon" />
+  <div class="row">
+    <div><label>温度（空=不传）</label><input id="temperature" type="number" step="0.01" /></div>
+    <div><label>最大 token（空=不传）</label><input id="maxTokens" type="number" step="128" /></div>
+  </div>
+  <div class="row">
+    <div><label>轮数上限</label><input id="maxRounds" type="number" min="1" max="50" /></div>
+    <div><label>叙述人称</label><select id="person">
+      <option value="auto">跟随前情</option>
+      <option value="first">第一人称</option>
+      <option value="second">第二人称</option>
+      <option value="third">第三人称</option>
+    </select></div>
+  </div>
+  <div class="hint">温度 / 最大 token 留空 = 不传。推理型模型别乱设温度、也别把额度设太小。</div>
+  <button id="saveBtn" class="ghost">保存设置</button>
+
+  <h3>骰点</h3>
+  <div id="rolls" class="hint">还没有投过骰子</div>
+  <h3>警告</h3>
+  <div id="warnings" class="hint">无</div>
+  <button id="clearBtn" class="ghost">清空记录</button>
+</aside>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let busy = false;
+
+const status = (text) => { $('status').textContent = text; };
+
+function addTurn(who, text, kind = '') {
+  const el = document.createElement('div');
+  el.className = 'turn ' + kind;
+  const w = document.createElement('div');
+  w.className = 'who';
+  w.textContent = who;
+  const b = document.createElement('div');
+  b.className = 'body';
+  b.textContent = text;
+  el.append(w, b);
+  $('log').append(el);
+  $('log').scrollTop = $('log').scrollHeight;
+}
+
+function renderRolls(rolls) {
+  if (!Array.isArray(rolls) || rolls.length === 0) return;
+  const box = $('rolls');
+  if (box.classList.contains('hint')) { box.classList.remove('hint'); box.textContent = ''; }
+  for (const r of rolls) {
+    const d = document.createElement('div');
+    const b = document.createElement('b');
+    b.textContent = r.expr + '=' + r.total;
+    d.append(b, document.createTextNode(' ' + (r.label || '')));
+    box.prepend(d);
+  }
+}
+
+function renderWarnings(list) {
+  $('warnings').textContent = (Array.isArray(list) && list.length) ? list.join('\n') : '无';
+}
+
+function fillForm(s) {
+  $('apiKind').value = s.apiKind || 'openai';
+  $('baseUrl').value = s.baseUrl || '';
+  $('apiKey').value = s.apiKey || '';
+  $('model').value = s.model || '';
+  $('temperature').value = Number.isFinite(s.temperature) ? s.temperature : '';
+  $('maxTokens').value = Number.isFinite(s.maxTokens) ? s.maxTokens : '';
+  $('maxRounds').value = s.maxRounds ?? 6;
+  $('person').value = s.person || 'auto';
+}
+
+function readForm() {
+  const numOrNull = (id) => {
+    const raw = $(id).value.trim();
+    if (raw === '') return null;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : null;
+  };
+  return {
+    apiKind: $('apiKind').value,
+    baseUrl: $('baseUrl').value.trim(),
+    apiKey: $('apiKey').value.trim(),
+    model: $('model').value.trim(),
+    temperature: numOrNull('temperature'),
+    maxTokens: numOrNull('maxTokens'),
+    maxRounds: Number($('maxRounds').value) || 6,
+    person: $('person').value,
+  };
+}
+
+async function boot() {
+  const kinds = await (await fetch('/api/kinds')).json();
+  const select = $('apiKind');
+  select.textContent = '';
+  for (const k of kinds) {
+    const opt = document.createElement('option');
+    opt.value = k;
+    opt.textContent = k === 'openai' ? 'openai（OpenAI 兼容：OpenRouter / 各种代理）' : 'gemini（Google 原生）';
+    select.append(opt);
+  }
+  const settings = await (await fetch('/api/settings')).json();
+  fillForm(settings);
+}
+
+$('saveBtn').addEventListener('click', async () => {
+  await fetch('/api/settings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(readForm()),
+  });
+  status('设置已保存');
+});
+
+$('clearBtn').addEventListener('click', () => {
+  $('log').textContent = '';
+  $('rolls').classList.add('hint');
+  $('rolls').textContent = '还没有投过骰子';
+  renderWarnings([]);
+  status('已清空');
+});
+
+async function run() {
+  if (busy) return;
+  const userInput = $('userInput').value.trim();
+  if (!userInput) { status('先写玩家要做什么'); return; }
+
+  busy = true;
+  $('runBtn').disabled = true;
+  status('推演中…');
+  addTurn('玩家', userInput);
+
+  const history = Array.from(document.querySelectorAll('.turn.director .body'))
+    .slice(-3).map((el) => el.textContent).join('\n\n');
+
+  try {
+    const response = await fetch('/api/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userInput, history }),
+    });
+    const result = await response.json();
+    if (!result || result.ok !== true) {
+      addTurn('错误', (result && result.error) || '未知错误', 'error');
+      status('失败');
+      return;
+    }
+    addTurn('导演', result.outline, 'director');
+    renderRolls(result.rolls);
+    renderWarnings(result.warnings);
+    $('userInput').value = '';
+    status('完成 · ' + result.rounds + ' 轮 · 结束原因：' + result.reason);
+  } catch (error) {
+    addTurn('错误', String(error && error.message ? error.message : error), 'error');
+    status('失败');
+  } finally {
+    busy = false;
+    $('runBtn').disabled = false;
+  }
+}
+
+$('runBtn').addEventListener('click', run);
+$('userInput').addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+    event.preventDefault();
+    run();
+  }
+});
+
+boot().catch((error) => addTurn('错误', '初始化失败：' + String(error), 'error'));
+</script>
+</body>
+</html>

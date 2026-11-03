@@ -1,0 +1,276 @@
+/* ==========================================================================
+   安科导游 —— 样式表
+   ==========================================================================
+   两条硬规则（都是为了不砸坏酒馆原生界面）：
+   1. 所有选择器都挂在扩展自己的根类名 .anko-director 下面，
+      绝不写 body / .mes / #chat 这类全局选择器，也不写无作用域的 @media 覆盖。
+      （社区实证：整屏 100vw/100vh + z-index 覆盖会让 iOS 上右侧所有按钮点不动。）
+   2. 不覆盖 ST 原生类（.menu_button / .text_pole / .inline-drawer / .gap5px …）的公共属性。
+   ========================================================================== */
+
+.anko-director {
+    --anko-good: #4caf50;
+    --anko-bad: #f44336;
+    --anko-crit: #ffc107;
+}
+
+/* ==========================================================================
+   常驻浮窗
+   ==========================================================================
+   为什么自己写、不用酒馆的 Popup：Popup 是模态的，会挡住聊天，
+   而"边聊边看骰点日志"恰恰要求不挡。
+   尺寸刻意做小、z-index 也刻意不顶到 9999 —— 规范 C8 记着"整屏覆盖 + 高 z-index
+   会让 iOS 上右侧所有按钮点不动"。这里只有那块小窗口可交互，其余区域不拦事件。
+   ========================================================================== */
+
+/* 浮窗挂在 body 下（不在 .anko-director 里），所以直接按 id 作用域 */
+#anko_float {
+    position: fixed;
+    z-index: 3000;
+    width: 340px;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--SmartThemeBorderColor, rgba(128, 128, 128, 0.45));
+    border-radius: 6px;
+    background: var(--SmartThemeBlurTintColor, rgba(30, 30, 30, 0.92));
+    color: var(--SmartThemeBodyColor, inherit);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+    font-size: 0.92em;
+}
+
+#anko_float .anko-float-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 4px 8px;
+    cursor: move;
+    touch-action: none; /* 触屏拖动时别让页面跟着滚 */
+    border-bottom: 1px solid var(--SmartThemeBorderColor, rgba(128, 128, 128, 0.35));
+    font-weight: bold;
+}
+
+#anko_float .anko-float-btn {
+    cursor: pointer;
+    opacity: 0.75;
+    padding: 0 4px;
+}
+
+#anko_float .anko-float-btn:hover {
+    opacity: 1;
+}
+
+#anko_float .anko-float-body {
+    overflow-y: auto;
+    padding: 6px 8px 10px;
+}
+
+/* 浮窗里日志区可以矮一点，省地方 */
+#anko_float .anko-log {
+    max-height: 150px;
+}
+
+/* 窄屏（手机）上浮窗占满宽度，免得拖来拖去找不到 */
+@media (max-width: 600px) {
+    #anko_float {
+        width: 94vw;
+        left: 3vw !important;
+    }
+}
+
+/* ==========================================================================
+   面板本身
+   ========================================================================== */
+
+.anko-director .anko-line {
+    margin: 2px 0;
+    line-height: 1.5;
+}
+
+.anko-director #anko_attrs,
+.anko-director #anko_combat {
+    word-break: break-word;
+}
+
+/* 警告行：只有真有问题时才显示（refreshPanel 里 toggle） */
+.anko-director .anko-warn-line {
+    color: var(--anko-bad);
+    word-break: break-word;
+}
+
+/* 骰点日志折叠：用原生 <details>，样式只作用于自己的类名 */
+.anko-director .anko-log-wrap > summary {
+    cursor: pointer;
+    margin: 4px 0;
+}
+
+.anko-director .anko-log-wrap[open] > summary {
+    margin-bottom: 6px;
+}
+
+/* 骰点日志区 */
+.anko-director .anko-log {
+    max-height: 220px;
+    overflow-y: auto;
+    margin: 4px 0;
+    padding: 4px 6px;
+    /* 边框跟随酒馆主题（社区实证：写死颜色在深色主题下会错乱） */
+    border: 1px solid var(--SmartThemeBorderColor, rgba(128, 128, 128, 0.25));
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.08);
+    color: var(--SmartThemeBodyColor, inherit);
+    font-family: monospace;
+    font-size: 0.82em;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.anko-director #anko_progress {
+    opacity: 0.85;
+}
+
+.anko-director #anko_status {
+    opacity: 0.8;
+    font-size: 0.9em;
+    word-break: break-word;
+}
+
+/* 有异常时（命令没注册上 / 钩子没挂 / 已被禁用）把状态行标红，
+   免得像上次那样"面板上写着 0 次，但没人注意到" */
+.anko-director #anko_status.anko-warn {
+    color: var(--anko-bad);
+    opacity: 1;
+    font-weight: bold;
+}
+
+.anko-director #anko_log_count {
+    opacity: 0.6;
+    font-size: 0.85em;
+}
+
+/* ==========================================================================
+   面板排版（2026-11-01 改版：用户反馈"现在的 UI 不好看"）
+   ==========================================================================
+   目标：① 一眼看出分组 ② 控件对齐成"标签在上、输入在下"的竖排节奏
+        ③ 状态区做成两列（名字 / 值），值太长时换行不撑破面板
+   仍然只作用于 .anko-director 内部，不碰酒馆原生类 ✓
+   ========================================================================== */
+
+/* 分组小标题：一条细线 + 小字，代替原来那排 sysHR 的分隔感 */
+.anko-director .anko-section-title {
+    margin: 14px 0 6px;
+    padding-bottom: 4px;
+    font-size: 0.86em;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    opacity: 0.85;
+    border-bottom: 1px solid var(--SmartThemeBorderColor, rgba(128, 128, 128, 0.35));
+}
+
+/* 第一个分组标题不要顶格留白 */
+.anko-director .inline-drawer-content > .anko-section-title:first-of-type {
+    margin-top: 8px;
+}
+
+/* 标签：统一成小号、半透明，和输入框拉开层次 */
+.anko-director > .inline-drawer > .inline-drawer-content > label,
+.anko-director .inline-drawer-content > label {
+    display: block;
+    margin: 10px 0 2px;
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+/* 输入框 / 下拉：满宽，避免长短不一显得乱 */
+.anko-director .inline-drawer-content > input.text_pole,
+.anko-director .inline-drawer-content > select.text_pole,
+.anko-director .inline-drawer-content > textarea.text_pole {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 按钮行：自动换行 + 间距统一 */
+.anko-director .inline-drawer-content > .flex-container {
+    margin: 8px 0 2px;
+    flex-wrap: wrap;
+}
+
+/* 勾选项：整行可点，行距松一点，别挤成一坨 */
+.anko-director .checkbox_label {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin: 6px 0;
+    line-height: 1.45;
+}
+
+.anko-director .checkbox_label input[type='checkbox'] {
+    margin-top: 2px;
+    flex: 0 0 auto;
+}
+
+/* 状态区：名字定宽、值自适应，长内容自然换行 */
+.anko-director .anko-line {
+    display: grid;
+    grid-template-columns: 4.2em 1fr;
+    gap: 6px;
+    align-items: start;
+    margin: 4px 0;
+    line-height: 1.5;
+}
+
+.anko-director .anko-line > b {
+    opacity: 0.8;
+    font-weight: bold;
+}
+
+/* 提示 / 诊断行（预设解析、测试结果等）：不参与两列布局，整行铺开 */
+.anko-director .anko-line.hint,
+.anko-director #anko_preset_msg,
+.anko-director #anko_api_source_result,
+.anko-director #anko_api_result,
+.anko-director .anko-warn-line,
+.anko-director #anko_warn {
+    display: block;
+    font-size: 0.9em;
+    opacity: 0.85;
+    word-break: break-word;
+}
+
+/* 警告：给一点底色，别只靠颜色字 */
+.anko-director .anko-warn,
+.anko-director .anko-warn-line {
+    color: var(--anko-bad);
+}
+
+.anko-director .anko-warn:not(:empty) {
+    padding: 4px 6px;
+    border-left: 3px solid var(--anko-bad);
+    background: rgba(244, 67, 54, 0.08);
+}
+
+/* 折叠块（内置 API / 日志）：标题做成按钮感 */
+.anko-director .anko-api > summary,
+.anko-director .anko-log-wrap > summary {
+    padding: 6px 8px;
+    margin: 10px 0 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    border: 1px solid var(--SmartThemeBorderColor, rgba(128, 128, 128, 0.35));
+    background: rgba(128, 128, 128, 0.08);
+    font-size: 0.95em;
+}
+
+.anko-director .anko-api[open] > summary,
+.anko-director .anko-log-wrap[open] > summary {
+    margin-bottom: 8px;
+}
+
+/* 日志行：等宽数字，方便对齐骰点 */
+.anko-director .anko-log {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.92em;
+    line-height: 1.5;
+}
