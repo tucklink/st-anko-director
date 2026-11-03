@@ -2407,8 +2407,8 @@ test('★ 导入预设：必须走 savePreset 默认参数（skipUpdate=false �
     const oldPresetManager = stub.getPresetManager;
     try {
         stub.getPresetManager = (api) => (api === 'openai' ? {
-            getAllPresets: () => ['Reborn2.4.2'],
-            getSelectedPresetName: () => 'Reborn2.4.2',
+            getAllPresets: () => ['示例预设'],
+            getSelectedPresetName: () => '示例预设',
             findPreset: () => '0',
             selectPreset: () => {},
             savePreset: async (name, data, options) => { calls.push({ name, data, options }); },
@@ -2439,8 +2439,8 @@ test('★ 酒馆预设：下拉只**显示**预设（不改你的预设 ✗）�
     const switched = [];
     try {
         stub.getPresetManager = (api) => (api === 'openai' ? {
-            getAllPresets: () => ['Reborn2.4.2', '另一个预设'],
-            getSelectedPresetName: () => 'Reborn2.4.2',
+            getAllPresets: () => ['示例预设', '另一个预设'],
+            getSelectedPresetName: () => '示例预设',
             findPreset: () => '1',
             selectPreset: (value) => { switched.push(value); },
             savePreset: async () => {},
@@ -2449,7 +2449,7 @@ test('★ 酒馆预设：下拉只**显示**预设（不改你的预设 ✗）�
 
         handlerOf('#anko_preset_select', 'focus')({ target: fakeJQuery('#anko_preset_select') });
         const html = String(fakeJQuery('#anko_preset_select').html() ?? '');
-        assert.match(html, /Reborn2\.4\.2/, '下拉里要有预设名 ✓');
+        assert.match(html, /示例预设/, '下拉里要有预设名 ✓');
         assert.equal(switched.length, 0, '这个插件**不许**切换你的预设 ✗');
     } finally {
         stub.getPresetManager = oldPresetManager;
@@ -2509,8 +2509,8 @@ test('★ 导入预设：必须走 savePreset 默认参数（skipUpdate=false �
     const oldPresetManager = stub.getPresetManager;
     try {
         stub.getPresetManager = (api) => (api === 'openai' ? {
-            getAllPresets: () => ['Reborn2.4.2'],
-            getSelectedPresetName: () => 'Reborn2.4.2',
+            getAllPresets: () => ['示例预设'],
+            getSelectedPresetName: () => '示例预设',
             findPreset: () => '0',
             selectPreset: () => {},
             savePreset: async (name, data, options) => { calls.push({ name, data, options }); },
@@ -2541,8 +2541,8 @@ test('★ 酒馆预设：下拉只**显示**预设（不改你的预设 ✗）�
     const switched = [];
     try {
         stub.getPresetManager = (api) => (api === 'openai' ? {
-            getAllPresets: () => ['Reborn2.4.2', '另一个预设'],
-            getSelectedPresetName: () => 'Reborn2.4.2',
+            getAllPresets: () => ['示例预设', '另一个预设'],
+            getSelectedPresetName: () => '示例预设',
             findPreset: () => '1',
             selectPreset: (value) => { switched.push(value); },
             savePreset: async () => {},
@@ -2551,7 +2551,7 @@ test('★ 酒馆预设：下拉只**显示**预设（不改你的预设 ✗）�
 
         handlerOf('#anko_preset_select', 'focus')({ target: fakeJQuery('#anko_preset_select') });
         const html = String(fakeJQuery('#anko_preset_select').html() ?? '');
-        assert.match(html, /Reborn2\.4\.2/, '下拉里要有预设名 ✓');
+        assert.match(html, /示例预设/, '下拉里要有预设名 ✓');
         assert.equal(switched.length, 0, '这个插件**不许**切换你的预设 ✗');
     } finally {
         stub.getPresetManager = oldPresetManager;
@@ -2610,8 +2610,8 @@ test('★ 导入预设：必须走 savePreset 默认参数（skipUpdate=false �
     const oldPresetManager = stub.getPresetManager;
     try {
         stub.getPresetManager = (api) => (api === 'openai' ? {
-            getAllPresets: () => ['Reborn2.4.2'],
-            getSelectedPresetName: () => 'Reborn2.4.2',
+            getAllPresets: () => ['示例预设'],
+            getSelectedPresetName: () => '示例预设',
             findPreset: () => '0',
             selectPreset: () => {},
             savePreset: async (name, data, options) => { calls.push({ name, data, options }); },
@@ -2642,8 +2642,8 @@ test('★ 酒馆预设：下拉只**显示**预设（不改你的预设 ✗）�
     const switched = [];
     try {
         stub.getPresetManager = (api) => (api === 'openai' ? {
-            getAllPresets: () => ['Reborn2.4.2', '另一个预设'],
-            getSelectedPresetName: () => 'Reborn2.4.2',
+            getAllPresets: () => ['示例预设', '另一个预设'],
+            getSelectedPresetName: () => '示例预设',
             findPreset: () => '1',
             selectPreset: (value) => { switched.push(value); },
             savePreset: async () => {},
@@ -2652,7 +2652,7 @@ test('★ 酒馆预设：下拉只**显示**预设（不改你的预设 ✗）�
 
         handlerOf('#anko_preset_select', 'focus')({ target: fakeJQuery('#anko_preset_select') });
         const html = String(fakeJQuery('#anko_preset_select').html() ?? '');
-        assert.match(html, /Reborn2\.4\.2/, '下拉里要有预设名 ✓');
+        assert.match(html, /示例预设/, '下拉里要有预设名 ✓');
         assert.equal(switched.length, 0, '这个插件**不许**切换你的预设 ✗');
     } finally {
         stub.getPresetManager = oldPresetManager;

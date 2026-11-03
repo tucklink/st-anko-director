@@ -31,7 +31,7 @@ const ASSET_PREFIX = 'app/';
  * 挑一个**真的能写**的目录。
  *
  * ⚠️ 这里踩过坑 ✗：原来写死 `os.tmpdir()` ✓，但用户的 shell 里
- * `TEMP=C:\Users\PC\AppData\Local\Temp` —— 那个目录**不可写** ✗
+ * `TEMP=C:\Users\<user>\AppData\Local\Temp` —— 那个目录**不可写** ✗
  * （实测 `EPERM: operation not permitted, mkdir` ✓），
  * 于是 exe 一启动就死 ✓，日志只留一行 ✓，看起来像"什么都没发生" ✗。
  * 而我这边 DSH 给的 TEMP 是个可写子目录 ✓，所以我的测试**永远发现不了** ✗。

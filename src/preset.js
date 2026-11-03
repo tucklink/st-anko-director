@@ -211,7 +211,7 @@ const VARIABLE_LINE_RES = [
  * 把酒馆预设里的**提示词编排**（`prompts` + `prompt_order`）拼成一段"写作口径" ✓。
  *
  * 为什么需要（用户点破的）：**预设的主体是那几十条 system 指令** ✗ 不是采样参数 ✓。
- * 用户那份预设是 67 条（`prompt_settings_openai = Reborn2.4.2` ✓），内容像
+ * 用户那份预设是 67 条（`prompt_settings_openai = 示例预设` ✓），内容像
  * 「正文要用 <game></game> 包上」✓、「别把玩家当主角」✓、「NSFW 要温柔」✓ ——
  * 只抄 `temperature` 等于**什么都没抄** ✗（我前面就是这么错的 ✓）。
  *

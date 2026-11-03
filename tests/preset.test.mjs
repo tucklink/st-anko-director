@@ -326,7 +326,7 @@ test('★ stripVariableUpdateBlocks：变量块 / 状态占位 / _.set 全部剥
     const raw = [
         '他推门进去。',
         '<UpdateVariable>',
-        '[{ "op": "add", "path": "/主角", "value": { "姓名": "莹" } }]',
+        '[{ "op": "add", "path": "/主角", "value": { "姓名": "阿七" } }]',
         '</UpdateVariable>',
         '<StatusPlaceHolderImpl/>',
         '_.set(\'主角.境界\', \'凡人\', \'筑基\');',
